@@ -1,24 +1,59 @@
 {% extends "django_messages/base.html" %}
 {% load i18n %}
 
-{% block content %}
-<h1>{% trans "View Message" %}</h1>
-<dl class="message-headers">
-    <dt>{% trans "Subject" %}</dt>
-    <dd><strong>{{ message.subject }}</strong></dd>
-    <dt>{% trans "Sender" %}</dt>
-    <dd>{{ message.sender }}</dd>
-    <dt>{% trans "Date" %} </dt>
-    <dd>{{ message.sent_at|date:_("DATETIME_FORMAT")}}</dd>
-    <dt>{% trans "Recipient" %}</dt>
-    <dd>{{ message.recipient }}</dd>
-</dl>
-{{ message.body|linebreaksbr }}<br /><br />
+{% block styles %}
+{{block.super}}
+<style>
+textarea {
+  margin:0px 0px;
+  padding:5px;
+  min-height:16px;
+  line-height:16px;
+  width:96%;
+  display:block;
+  margin:0px auto;    
+  resize: none;
+}
+</style>
+{% endblock %}
 
+{% block content %}
+<h1 class="text-center">{% trans "View Message" %}</h1>
+<dl class="message-headers">
+	<div class="form-group">
+		<label for="" class="control-label">{% trans "Subject" %}</label>
+	    <input class="form-control" type="text" value="{{ message.subject }}" readonly>
+    </div>
+    <div class="form-row">
+	<div class="col">
+		<label for="" class="control-label">De</label>
+	    <input class="form-control" type="text" value="{{ message.sender }}" readonly>
+    </div>
+	<div class="col">
+		<label for="" class="control-label">Para</label>
+	    <input class="form-control" type="text" value="{{ message.recipient }}" readonly>
+    </div>
+	</div>
+	<div class="form-group">
+		<label for="" class="control-label">{% trans "Date" %} </label>
+	    <input class="form-control" type="text" value="{{ message.sent_at|date:_("DATETIME_FORMAT")}}" readonly>
+    </div>
+	<div class="form-group">
+		<label for="" class="control-label">{% trans "Message" %} </label>
+		<div class="editor">
+		<textarea class="autoheight form-control" readonly ">
+			
+{{ message.body|safe}}
+			
+		</textarea>
+	</div>
+		
+		
+	</div>
 {% ifequal message.recipient.pk user.pk %}
-<a href="{% url 'messages_reply' message.id %}">{% trans "Reply" %}</a>
+<a class="btn btn-success" href="{% url 'messages_reply' message.id %}"><i class="fa fa-mail-reply"></i></a>
 {% endifequal %}
-<a href="{% url 'messages_delete' message.id %}">{% trans "Delete" %}</a>
+<a class="btn btn-danger" href="{% url 'messages_delete' message.id %}"><i class="fa fa-trash"></i></a>
 
 {% comment %}Example reply_form integration
 {% if reply_form %}
@@ -32,4 +67,16 @@
 </form>
 {% endif %}
 {% endcomment %}
+{% endblock %}
+
+{%block scripts %}
+{{block.super}}
+<script>
+	$('.editor').on('keyup', 'textarea', function(e) {
+  $(this).css('height', 'auto');
+  $(this).height(this.scrollHeight);
+});
+$('.editor').find('textarea').keyup();
+</script>
+
 {% endblock %}
